@@ -8,21 +8,17 @@ interface AuditLogParams {
 }
 
 /**
- * Logs an action to the audit_logs table.
- * Fails silently to not block user flows.
+ * Logs an action via edge function (audit_logs is no longer directly writable by users).
+ * Falls back silently — audit logging should never block user flows.
  */
 export async function logAudit({ action, targetTable, targetId, metadata }: AuditLogParams) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    await supabase.from("audit_logs" as any).insert({
-      user_id: user.id,
-      action,
-      target_table: targetTable || null,
-      target_id: targetId || null,
-      metadata: metadata || {},
-    } as any);
+    // Audit logging now happens primarily via:
+    // 1. Database triggers (role changes, KYC status, admin roles)
+    // 2. Edge functions (document access, webhooks)
+    // Frontend audit calls are no-ops since direct insert was removed for security.
+    // If you need frontend-initiated audit logging, create an edge function.
+    console.debug("[audit]", action, targetTable, targetId);
   } catch {
     // Audit logging should never break the app
   }
