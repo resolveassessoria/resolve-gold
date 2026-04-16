@@ -24,7 +24,8 @@ async function verifySignature(payload: string, signature: string, secret: strin
       ["sign"]
     );
     const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
-    const computed = new TextDecoder().decode(hexEncode(new Uint8Array(sig)));
+    const hashArray = Array.from(new Uint8Array(sig));
+    const computed = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     return computed === signature;
   } catch {
     return false;
