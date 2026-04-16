@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const navItems = [
   { label: "Início", href: "#inicio" },
@@ -32,8 +33,8 @@ export function Navbar() {
       }}
     >
       <div className="container mx-auto flex items-center justify-between py-4 px-4">
-        <a href="#inicio" className="text-2xl font-heading font-bold text-primary tracking-wide">
-          RESOLVE
+        <a href="#inicio" className="shrink-0">
+          <BrandLogo imageClassName="h-12 md:h-14" />
         </a>
 
         {/* Desktop */}

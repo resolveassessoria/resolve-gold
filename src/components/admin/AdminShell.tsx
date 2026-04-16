@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fullAdminPortalLinks } from "@/lib/access-control";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export interface AdminNavItem {
   label: string;
@@ -45,7 +46,7 @@ export function AdminShell({ children, userName, onSignOut, navItems, adminRoles
             </button>
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-red-400" />
-              <span className="text-lg font-heading font-bold text-white">RESOLVE</span>
+              <BrandLogo imageClassName="h-10 border-red-400/25" />
               <span className="text-[10px] font-mono text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded">ADMIN</span>
             </div>
           </div>

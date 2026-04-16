@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const schema = z.object({
   nome: z.string().min(2, "Nome obrigatório"),
@@ -64,7 +65,9 @@ export default function Register() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="text-3xl font-heading font-bold text-primary">RESOLVE</Link>
+          <Link to="/" className="inline-flex justify-center">
+            <BrandLogo imageClassName="h-24 md:h-28" />
+          </Link>
           <p className="text-muted-foreground mt-2">Crie sua conta</p>
         </div>
 

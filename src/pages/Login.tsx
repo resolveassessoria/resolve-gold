@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { buildEnvUrl } from "@/lib/environment";
 import { toast } from "@/components/ui/sonner";
 import { getLoginErrorMessage } from "@/lib/auth";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const schema = z.object({
   email: z.string().email("Email inválido"),
@@ -83,7 +84,9 @@ export default function Login() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="text-3xl font-heading font-bold text-primary">RESOLVE</Link>
+          <Link to="/" className="inline-flex justify-center">
+            <BrandLogo imageClassName="h-24 md:h-28" />
+          </Link>
           <p className="text-muted-foreground mt-2">Acesse sua conta</p>
         </div>
 

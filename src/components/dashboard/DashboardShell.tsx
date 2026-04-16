@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export interface NavItem {
   label: string;
@@ -35,7 +36,9 @@ export function DashboardShell({ children, title, userName, onSignOut, navItems 
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <Link to="/" className="text-xl font-heading font-bold text-primary">RESOLVE</Link>
+            <Link to="/" className="shrink-0">
+              <BrandLogo imageClassName="h-10" />
+            </Link>
             <span className="text-xs text-muted-foreground hidden sm:inline">| {title}</span>
           </div>
           <div className="flex items-center gap-3">
