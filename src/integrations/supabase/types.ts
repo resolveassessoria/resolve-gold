@@ -14,16 +14,268 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      expansion_points: {
+        Row: {
+          comprou_conteudo: boolean
+          created_at: string
+          id: string
+          mes: string
+          pontos: number
+          user_id: string
+        }
+        Insert: {
+          comprou_conteudo?: boolean
+          created_at?: string
+          id?: string
+          mes: string
+          pontos?: number
+          user_id: string
+        }
+        Update: {
+          comprou_conteudo?: boolean
+          created_at?: string
+          id?: string
+          mes?: string
+          pontos?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expansion_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      indications: {
+        Row: {
+          created_at: string
+          id: string
+          indicado_id: string
+          indicador_id: string
+          nivel: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          indicado_id: string
+          indicador_id: string
+          nivel: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          indicado_id?: string
+          indicador_id?: string
+          nivel?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indications_indicado_id_fkey"
+            columns: ["indicado_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indications_indicador_id_fkey"
+            columns: ["indicador_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kyc_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_url: string
+          id: string
+          status: Database["public"]["Enums"]["status_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_url: string
+          id?: string
+          status?: Database["public"]["Enums"]["status_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_url?: string
+          id?: string
+          status?: Database["public"]["Enums"]["status_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kyc_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_products: {
+        Row: {
+          comissao_percentual: number
+          created_at: string
+          id: string
+          nome: string
+          preco: number
+        }
+        Insert: {
+          comissao_percentual: number
+          created_at?: string
+          id?: string
+          nome: string
+          preco: number
+        }
+        Update: {
+          comissao_percentual?: number
+          created_at?: string
+          id?: string
+          nome?: string
+          preco?: number
+        }
+        Relationships: []
+      }
+      marketplace_sales: {
+        Row: {
+          comissao_recebida: number
+          corretor_id: string
+          created_at: string
+          id: string
+          produto_id: string
+          valor: number
+        }
+        Insert: {
+          comissao_recebida: number
+          corretor_id: string
+          created_at?: string
+          id?: string
+          produto_id: string
+          valor: number
+        }
+        Update: {
+          comissao_recebida?: number
+          corretor_id?: string
+          created_at?: string
+          id?: string
+          produto_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_sales_corretor_id_fkey"
+            columns: ["corretor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_sales_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          cpf: string | null
+          created_at: string
+          email: string
+          id: string
+          nome: string
+          status: Database["public"]["Enums"]["status_type"]
+          telefone: string | null
+          tipo_usuario: Database["public"]["Enums"]["tipo_usuario"]
+          updated_at: string
+        }
+        Insert: {
+          cpf?: string | null
+          created_at?: string
+          email: string
+          id: string
+          nome: string
+          status?: Database["public"]["Enums"]["status_type"]
+          telefone?: string | null
+          tipo_usuario?: Database["public"]["Enums"]["tipo_usuario"]
+          updated_at?: string
+        }
+        Update: {
+          cpf?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+          status?: Database["public"]["Enums"]["status_type"]
+          telefone?: string | null
+          tipo_usuario?: Database["public"]["Enums"]["tipo_usuario"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          created_at: string
+          id: string
+          mes_referencia: string | null
+          tipo: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mes_referencia?: string | null
+          tipo: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mes_referencia?: string | null
+          tipo?: Database["public"]["Enums"]["transaction_type"]
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      status_type: "pendente" | "aprovado" | "rejeitado"
+      tipo_usuario:
+        | "cliente"
+        | "fomentador"
+        | "corretor"
+        | "franqueado"
+        | "admin"
+      transaction_type: "cashback" | "royalty" | "comissao" | "investimento"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +402,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      status_type: ["pendente", "aprovado", "rejeitado"],
+      tipo_usuario: [
+        "cliente",
+        "fomentador",
+        "corretor",
+        "franqueado",
+        "admin",
+      ],
+      transaction_type: ["cashback", "royalty", "comissao", "investimento"],
+    },
   },
 } as const
