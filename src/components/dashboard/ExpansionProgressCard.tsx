@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/utils/currency";
 import type { ExpansionLevelResult } from "@/lib/types/financial";
-import { Trophy, AlertTriangle } from "lucide-react";
+import { Trophy, AlertTriangle, ShoppingCart, ShieldCheck } from "lucide-react";
 
 interface ExpansionProgressCardProps {
   data: ExpansionLevelResult;
@@ -56,14 +56,32 @@ export function ExpansionProgressCard({ data }: ExpansionProgressCardProps) {
           </div>
         )}
 
-        {data.showZeroRiskWarning && (
-          <div className="flex items-start gap-2 bg-destructive/10 rounded-lg p-3 border border-destructive/20">
-            <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
-            <p className="text-xs text-destructive">
-              Atenção: sem aquisição de conteúdo nos últimos 3 meses, pontos podem ser zerados.
-            </p>
+        {/* Regras de pontos */}
+        <div className="space-y-2 pt-2 border-t border-gold/20">
+          <div className="flex items-start gap-2 text-xs text-muted-foreground">
+            <ShoppingCart className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />
+            <span>Compras no marketplace <strong className="text-green-500">preservam</strong> seus pontos.</span>
           </div>
-        )}
+
+          {data.showZeroRiskWarning ? (
+            <div className="flex items-start gap-2 bg-destructive/10 rounded-lg p-3 border border-destructive/20">
+              <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs text-destructive font-medium">
+                  Risco de zerar pontos!
+                </p>
+                <p className="text-[10px] text-destructive/80 mt-0.5">
+                  Sem aquisição de conteúdo nos últimos 3 meses, seus pontos podem ser zerados. Compras no marketplace não contam para essa regra.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />
+              <span>Conteúdo em dia — pontos protegidos.</span>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

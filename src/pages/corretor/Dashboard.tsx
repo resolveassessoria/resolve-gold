@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { corretorNav } from "@/components/dashboard/nav/corretorNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Target, Link2, TrendingUp } from "lucide-react";
+import { DollarSign, Users, Target, Link2, TrendingUp, CheckCircle, Clock, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,20 +60,24 @@ export default function CorretorDashboard() {
     enabled: !!user,
   });
 
-  const comissoesTotal = sumByFilter(transactions || [], (t) => t.tipo === "comissao");
+  // Real values from transactions
+  const comissaoPaga = sumByFilter(transactions || [], (t) => t.tipo === "comissao");
   const grossValue = sumByFilter(transactions || [], () => true);
   const marketplaceTotal = (marketplaceSales || []).reduce((s: number, t: any) => s + safeNumber(t.comissao_recebida), 0);
   const balance = calculateBalance(transactions || []);
 
   const calc = calculateCorretorDashboard({
     grossValue,
-    operationalCost: 0, // sem dado real de custo
+    operationalCost: 0,
     type: "client",
     marketplaceSalesTotal: marketplaceTotal,
     expansionPoints: points?.pontos || 0,
     comprou_conteudo: points?.comprou_conteudo ?? true,
   });
 
+  // Commission breakdown: prevista vs gerada vs paga
+  const comissaoPrevista = calc.totalProjected;
+  const comissaoGerada = comissaoPaga; // gerada = transactions existentes
   const profitShare = calculateProfitShare(grossValue);
   const referralLink = `${window.location.origin}/register?ref=${user?.id}`;
 
@@ -84,11 +88,52 @@ export default function CorretorDashboard() {
       <h1 className="text-2xl font-heading font-bold mb-6">Painel do <span className="text-primary">Corretor</span></h1>
 
       <KPIGrid columns={4} items={[
-        { title: "Comissões Recebidas", value: comissoesTotal, icon: DollarSign },
         { title: "Rede de Indicações", value: indications?.length || 0, icon: Users, format: "number" },
         { title: "Pontos de Expansão", value: points?.pontos || 0, icon: Target, format: "number" },
-        { title: "Total Projetado", value: calc.totalProjected, icon: TrendingUp, isProjection: true },
       ]} />
+
+      {/* Comissão: Prevista / Gerada / Paga */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <Card className="bg-card border-gold">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-primary" />
+              Comissão Prevista
+              <ProjectionBadge label="Projeção" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-primary">{formatBRL(comissaoPrevista)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Base de cálculo sobre operações</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-gold">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+              <Clock className="w-4 h-4 text-yellow-500" />
+              Comissão Gerada
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-primary">{formatBRL(comissaoGerada)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Registrada em transactions</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-gold">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              Comissão Paga
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-primary">{formatBRL(comissaoPaga)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Valor efetivamente creditado</p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Link de indicação */}
       <Card className="bg-card border-gold mt-6">
