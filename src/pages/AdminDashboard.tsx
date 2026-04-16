@@ -20,8 +20,8 @@ export default function AdminDashboard() {
     queryKey: ["admin-users", statusFilter, tipoFilter],
     queryFn: async () => {
       let query = supabase.from("profiles").select("*").order("created_at", { ascending: false });
-      if (statusFilter !== "all") query = query.eq("status", statusFilter);
-      if (tipoFilter !== "all") query = query.eq("tipo_usuario", tipoFilter);
+      if (statusFilter !== "all") query = query.eq("status", statusFilter as any);
+      if (tipoFilter !== "all") query = query.eq("tipo_usuario", tipoFilter as any);
       const { data } = await query;
       return data || [];
     },
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
   });
 
   const approveKYC = useMutation({
-    mutationFn: async ({ docId, status }: { docId: string; status: string }) => {
+    mutationFn: async ({ docId, status }: { docId: string; status: "pendente" | "aprovado" | "rejeitado" }) => {
       await supabase.from("kyc_documents").update({ status }).eq("id", docId);
     },
     onSuccess: () => {
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
   });
 
   const updateUserStatus = useMutation({
-    mutationFn: async ({ userId, status }: { userId: string; status: string }) => {
+    mutationFn: async ({ userId, status }: { userId: string; status: "pendente" | "aprovado" | "rejeitado" }) => {
       await supabase.from("profiles").update({ status }).eq("id", userId);
     },
     onSuccess: () => {
