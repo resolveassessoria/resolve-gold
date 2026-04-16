@@ -7,9 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { buildEnvUrl } from "@/lib/environment";
+import { toast } from "@/components/ui/sonner";
+import { getLoginErrorMessage } from "@/lib/auth";
 
 const schema = z.object({
   email: z.string().email("Email inválido"),
@@ -33,13 +34,10 @@ export default function Login() {
     });
 
     if (error) {
-      if (error.message.includes("Email not confirmed")) {
-        toast.error("Confirme seu email antes de fazer login. Verifique sua caixa de entrada.");
-      } else if (error.message.includes("Invalid login credentials")) {
-        toast.error("Email ou senha incorretos.");
-      } else {
-        toast.error(error.message);
-      }
+      toast.error("Falha no login", {
+        description: getLoginErrorMessage(error),
+        duration: 6000,
+      });
       setLoading(false);
       return;
     }
