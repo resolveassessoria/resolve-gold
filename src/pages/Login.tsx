@@ -53,14 +53,15 @@ export default function Login() {
         .single();
 
       const routes: Record<string, string> = {
-        cliente: "/cliente",
-        fomentador: "/fomentador",
-        corretor: "/corretor",
-        franqueado: "/franqueado",
-        admin: "/admin",
+        cliente: "/cliente/dashboard",
+        fomentador: "/fomentador/dashboard",
+        corretor: "/corretor/dashboard",
+        franqueado: "/franqueado/dashboard",
+        admin: "/admin/dashboard",
       };
 
-      navigate(routes[profile?.tipo_usuario || "cliente"] || "/cliente");
+      const role = profile?.tipo_usuario;
+      navigate(role ? (routes[role] || "/onboarding") : "/onboarding");
     }
     setLoading(false);
   };
