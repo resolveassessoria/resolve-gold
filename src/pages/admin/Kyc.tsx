@@ -2,16 +2,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { adminNav } from "@/components/dashboard/nav/adminNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileCheck } from "lucide-react";
+import { FileCheck, Eye, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getKycSignedUrl } from "@/lib/utils/kycStorage";
+import { useState } from "react";
 
 export default function AdminKyc() {
   const { user, profile, loading, signOut } = useAuth();
   const queryClient = useQueryClient();
+  const [viewingDoc, setViewingDoc] = useState<string | null>(null);
 
   const { data: docs } = useQuery({
     queryKey: ["admin-all-kyc"],
@@ -28,6 +31,18 @@ export default function AdminKyc() {
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-all-kyc"] }); toast.success("KYC atualizado!"); },
   });
+
+  const handleViewDocument = async (docId: string) => {
+    setViewingDoc(docId);
+    try {
+      const url = await getKycSignedUrl(docId);
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } finally {
+      setViewingDoc(null);
+    }
+  };
 
   if (loading) return null;
 
@@ -49,6 +64,14 @@ export default function AdminKyc() {
                     <p className="text-xs text-muted-foreground capitalize">{doc.document_type.replace(/_/g, ' ')} — {doc.profiles?.email}</p>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={viewingDoc === doc.id}
+                      onClick={() => handleViewDocument(doc.id)}
+                    >
+                      {viewingDoc === doc.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+                    </Button>
                     <Badge className={statusColor(doc.status)}>{doc.status}</Badge>
                     {doc.status === "pendente" && (
                       <>
