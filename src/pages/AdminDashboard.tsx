@@ -175,7 +175,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-xs border-primary text-primary capitalize">{u.tipo_usuario}</Badge>
-                  <Select value={u.status} onValueChange={(val) => updateUserStatus.mutate({ userId: u.id, status: val })}>
+                  <Select value={u.status} onValueChange={(val: string) => updateUserStatus.mutate({ userId: u.id, status: val as "pendente" | "aprovado" | "rejeitado" })}>
                     <SelectTrigger className="w-28 bg-input border-gold text-xs h-8"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="pendente">Pendente</SelectItem>
