@@ -41,7 +41,8 @@ export default function Register() {
           nome: data.nome,
           cpf: data.cpf,
           telefone: data.telefone,
-          tipo_usuario: data.tipo_usuario,
+          // tipo_usuario is NOT sent — trigger always defaults to 'cliente'
+          // Role assignment is done via onboarding or admin action
         },
       },
     });
