@@ -1,7 +1,7 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-const ease = [0.4, 0, 0.2, 1] as const;
+const ease: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
 // Scroll reveal wrapper
 export function ScrollReveal({
