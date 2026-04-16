@@ -1,13 +1,16 @@
 import { useAuth } from "@/hooks/useAuth";
-import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { adminNav } from "@/components/dashboard/nav/adminNav";
+import { useAdminRoles } from "@/hooks/useAdminRoles";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { adminNavItems } from "@/components/admin/adminNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingBag } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { formatBRL } from "@/lib/utils/currency";
 
 export default function AdminMarketplace() {
   const { user, profile, loading, signOut } = useAuth();
+  const { roles } = useAdminRoles(user?.id);
 
   const { data: products } = useQuery({
     queryKey: ["admin-products"],
@@ -30,18 +33,18 @@ export default function AdminMarketplace() {
   if (loading) return null;
 
   return (
-    <DashboardShell title="Marketplace" userName={profile?.nome} onSignOut={signOut} navItems={adminNav}>
-      <h1 className="text-2xl font-heading font-bold mb-6"><span className="text-primary">Marketplace</span></h1>
+    <AdminShell userName={profile?.nome} onSignOut={signOut} navItems={adminNavItems} adminRoles={roles}>
+      <h1 className="text-2xl font-heading font-bold mb-6"><span className="text-red-400">Marketplace</span></h1>
 
-      <Card className="bg-card border-gold mb-8">
-        <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingBag className="w-5 h-5 text-primary" /> Produtos ({products?.length || 0})</CardTitle></CardHeader>
+      <Card className="bg-[hsl(220,18%,7%)] border-[hsl(220,15%,15%)] mb-8">
+        <CardHeader><CardTitle className="flex items-center gap-2"><ShoppingBag className="w-5 h-5 text-red-400" /> Produtos ({products?.length || 0})</CardTitle></CardHeader>
         <CardContent>
           {products && products.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {products.map((p: any) => (
-                <div key={p.id} className="bg-muted rounded-lg p-4 border border-gold">
+                <div key={p.id} className="bg-[hsl(220,15%,10%)] rounded-lg p-4 border border-[hsl(220,15%,15%)]">
                   <p className="font-heading font-bold">{p.nome}</p>
-                  <p className="text-primary font-bold mt-1">R$ {Number(p.preco).toFixed(2)}</p>
+                  <p className="text-red-400 font-bold mt-1">{formatBRL(p.preco)}</p>
                   <p className="text-xs text-muted-foreground">Comissão: {p.comissao_percentual}%</p>
                 </div>
               ))}
@@ -52,18 +55,18 @@ export default function AdminMarketplace() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card border-gold">
+      <Card className="bg-[hsl(220,18%,7%)] border-[hsl(220,15%,15%)]">
         <CardHeader><CardTitle>Vendas Recentes</CardTitle></CardHeader>
         <CardContent>
           {sales && sales.length > 0 ? (
             <div className="space-y-2">
               {sales.map((s: any) => (
-                <div key={s.id} className="flex justify-between items-center py-2 border-b border-gold last:border-0">
+                <div key={s.id} className="flex justify-between items-center py-2 border-b border-[hsl(220,15%,12%)] last:border-0">
                   <div>
                     <p className="text-sm font-medium">{(s as any).marketplace_products?.nome || "Produto"}</p>
                     <p className="text-xs text-muted-foreground">Corretor: {(s as any).profiles?.nome || "—"} — {new Date(s.created_at).toLocaleDateString("pt-BR")}</p>
                   </div>
-                  <p className="text-primary font-bold">R$ {Number(s.valor).toFixed(2)}</p>
+                  <p className="text-red-400 font-bold">{formatBRL(s.valor)}</p>
                 </div>
               ))}
             </div>
@@ -72,6 +75,6 @@ export default function AdminMarketplace() {
           )}
         </CardContent>
       </Card>
-    </DashboardShell>
+    </AdminShell>
   );
 }
