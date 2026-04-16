@@ -52,7 +52,9 @@ export function HeroSection() {
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-6 leading-tight">
             <AnimatedWords text="A SOLUÇÃO NA PALMA" />
             <br />
-            <AnimatedWords text="DE SUAS MÃOS" className="text-gold-gradient" />
+            <span className="text-gold-gradient inline-block">
+              <AnimatedWords text="DE SUAS MÃOS" />
+            </span>
           </h1>
 
           <motion.p
