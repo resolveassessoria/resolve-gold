@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CreditCard, ShieldCheck, DollarSign, TrendingUp, Calculator,
   Gift, Store, Landmark, Wallet, Link2, FileText, CheckCircle,
-  Clock, Loader2, PlayCircle, BadgeCheck, AlertCircle, ShoppingBag,
+  Clock, Loader2, PlayCircle, BadgeCheck, AlertCircle, ShoppingBag, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -17,11 +17,18 @@ import { WithdrawalSimulator } from "@/components/dashboard/WithdrawalSimulator"
 import { calculateClientDashboard } from "@/lib/calculations/client";
 import { calculateBalance } from "@/lib/calculations/finance";
 import { formatBRL, safeNumber, sumByFilter } from "@/lib/utils/currency";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const SERVICE_STATUSES = [
   { key: "aguardando", label: "Aguardando pagamento", icon: Clock, color: "text-yellow-500" },
@@ -32,18 +39,28 @@ const SERVICE_STATUSES = [
 ];
 
 const MARKETPLACE_ITEMS = [
-  { nome: "Maquininha de cartão", desc: "Facilite seus recebimentos", icon: CreditCard },
-  { nome: "Chip de celular", desc: "Conectividade com vantagens", icon: ShoppingBag },
-  { nome: "Streaming", desc: "Acesso a entretenimento", icon: PlayCircle },
-  { nome: "Rastreador veicular", desc: "Segurança para seu veículo", icon: ShieldCheck },
-  { nome: "Seguro de vida", desc: "Proteção para você e sua família", icon: ShieldCheck },
-  { nome: "Plano médico", desc: "Cuide da sua saúde", icon: BadgeCheck },
-  { nome: "Cursos EAD", desc: "Capacitação profissional", icon: FileText },
+  { nome: "Maquininha de cartão", desc: "Facilite seus recebimentos", icon: CreditCard, details: "Aceite pagamentos com cartão de débito e crédito. Taxas competitivas e recebimento rápido." },
+  { nome: "Chip de celular", desc: "Conectividade com vantagens", icon: ShoppingBag, details: "Planos de dados e voz com vantagens exclusivas para clientes RESOLVE." },
+  { nome: "Streaming", desc: "Acesso a entretenimento", icon: PlayCircle, details: "Acesso a plataformas de streaming com descontos especiais do ecossistema." },
+  { nome: "Rastreador veicular", desc: "Segurança para seu veículo", icon: ShieldCheck, details: "Rastreamento 24h com monitoramento em tempo real e alertas de segurança." },
+  { nome: "Seguro de vida", desc: "Proteção para você e sua família", icon: ShieldCheck, details: "Coberturas completas com condições especiais para membros da plataforma." },
+  { nome: "Plano médico", desc: "Cuide da sua saúde", icon: BadgeCheck, details: "Planos de saúde com cobertura nacional e rede credenciada ampla." },
+  { nome: "Cursos EAD", desc: "Capacitação profissional", icon: FileText, details: "Cursos online de capacitação para impulsionar sua carreira e renda." },
 ];
+
+type SelectedProduct = {
+  nome: string;
+  desc: string;
+  details: string;
+  preco?: number;
+  icon?: any;
+};
 
 export default function ClienteDashboard() {
   const { user, profile, loading, signOut } = useAuth();
   const [debtInput, setDebtInput] = useState("7000");
+  const [selectedProduct, setSelectedProduct] = useState<SelectedProduct | null>(null);
+  const simulatorRef = useRef<HTMLDivElement>(null);
 
   const { data: transactions } = useQuery({
     queryKey: ["cliente-transactions", user?.id],
@@ -79,15 +96,17 @@ export default function ClienteDashboard() {
   const cashbackReal = sumByFilter(transactions || [], (t: any) => t.tipo === "cashback");
   const referralLink = `${window.location.origin}/register?ref=${user?.id}`;
 
-  // KYC status
   const kycCount = kycDocs?.length || 0;
   const kycApproved = kycDocs?.filter((d: any) => d.status === "aprovado").length || 0;
   const kycStatus = kycCount === 0 ? "Pendente" : kycApproved >= 3 ? "Aprovado" : kycDocs?.some((d: any) => d.status === "rejeitado") ? "Rejeitado" : "Em análise";
   const kycStatusColor = kycStatus === "Aprovado" ? "text-green-500" : kycStatus === "Rejeitado" ? "text-destructive" : "text-yellow-500";
 
-  // Service status (mock - no real field yet)
   const currentServiceStatus = "aguardando";
   const currentStatusIndex = SERVICE_STATUSES.findIndex(s => s.key === currentServiceStatus);
+
+  const scrollToSimulator = () => {
+    simulatorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (loading) return null;
 
@@ -107,12 +126,11 @@ export default function ClienteDashboard() {
                 Regularize seu nome e desbloqueie benefícios financeiros exclusivos.
               </p>
             </div>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={scrollToSimulator}>
               Contratar serviço
             </Button>
           </div>
 
-          {/* Benefícios inclusos */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-5">
             {[
               { icon: Landmark, label: "Conta bancária" },
@@ -128,7 +146,6 @@ export default function ClienteDashboard() {
             ))}
           </div>
 
-          {/* Preço */}
           <div className="mt-4 bg-card/60 backdrop-blur rounded-lg p-3 border border-gold/30">
             <p className="text-xs text-muted-foreground">Preço do serviço:</p>
             <p className="text-sm mt-1">
@@ -142,29 +159,30 @@ export default function ClienteDashboard() {
       </Card>
 
       {/* ====== SEÇÃO 2: SIMULADOR + CARDS DE RESULTADO ====== */}
-      <Card className="bg-card border-gold mt-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Calculator className="w-5 h-5 text-primary" />
-            Simulador de Serviço
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="text-sm text-muted-foreground">Valor da Dívida (R$)</Label>
-            <Input
-              type="number"
-              value={debtInput}
-              onChange={(e) => setDebtInput(e.target.value)}
-              className="mt-1 max-w-xs"
-              placeholder="7000"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div ref={simulatorRef}>
+        <Card className="bg-card border-gold mt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Calculator className="w-5 h-5 text-primary" />
+              Simulador de Serviço
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-sm text-muted-foreground">Valor da Dívida (R$)</Label>
+              <Input
+                type="number"
+                value={debtInput}
+                onChange={(e) => setDebtInput(e.target.value)}
+                className="mt-1 max-w-xs"
+                placeholder="7000"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-        {/* Valor do Serviço */}
         <Card className="bg-card border-gold">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
@@ -180,7 +198,6 @@ export default function ClienteDashboard() {
           </CardContent>
         </Card>
 
-        {/* Crédito Bancário */}
         <Card className="bg-card border-gold">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
@@ -198,7 +215,6 @@ export default function ClienteDashboard() {
           </CardContent>
         </Card>
 
-        {/* Cashback Mensal */}
         <Card className="bg-card border-gold">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
@@ -213,7 +229,6 @@ export default function ClienteDashboard() {
           </CardContent>
         </Card>
 
-        {/* Cashback Total */}
         <Card className="bg-card border-gold">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
@@ -330,7 +345,17 @@ export default function ClienteDashboard() {
                     <p className="text-sm font-medium">{p.nome}</p>
                     <p className="text-primary font-bold mt-1">{formatBRL(safeNumber(p.preco))}</p>
                   </div>
-                  <Button variant="outline" size="sm" className="mt-2 border-primary/40 text-primary text-xs w-full">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 border-primary/40 text-primary text-xs w-full"
+                    onClick={() => setSelectedProduct({
+                      nome: p.nome,
+                      desc: `Comissão: ${p.comissao_percentual}%`,
+                      details: `Produto disponível no marketplace RESOLVE. Preço: ${formatBRL(safeNumber(p.preco))}. Comissão: ${p.comissao_percentual}%.`,
+                      preco: safeNumber(p.preco),
+                    })}
+                  >
                     Ver produto
                   </Button>
                 </div>
@@ -338,14 +363,23 @@ export default function ClienteDashboard() {
             </div>
           )}
 
-          {/* Fallback showcase items */}
+          {/* Showcase items */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {MARKETPLACE_ITEMS.map((item) => (
               <div key={item.nome} className="bg-muted rounded-lg p-3 border border-gold/30 text-center">
                 <item.icon className="w-6 h-6 text-primary mx-auto mb-2" />
                 <p className="text-sm font-medium">{item.nome}</p>
                 <p className="text-[10px] text-muted-foreground mt-1">{item.desc}</p>
-                <Button variant="outline" size="sm" className="mt-2 border-primary/40 text-primary text-xs w-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 border-primary/40 text-primary text-xs w-full"
+                  onClick={() => setSelectedProduct({
+                    nome: item.nome,
+                    desc: item.desc,
+                    details: item.details,
+                  })}
+                >
                   Ver produto
                 </Button>
               </div>
@@ -393,6 +427,34 @@ export default function ClienteDashboard() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* ====== DIALOG: PRODUTO ====== */}
+      <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
+        <DialogContent className="bg-card border-gold max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-primary">{selectedProduct?.nome}</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {selectedProduct?.desc}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm">{selectedProduct?.details}</p>
+            {selectedProduct?.preco && (
+              <div className="bg-muted rounded-lg p-3 border border-gold/30">
+                <p className="text-xs text-muted-foreground">Preço</p>
+                <p className="text-xl font-bold text-primary">{formatBRL(selectedProduct.preco)}</p>
+              </div>
+            )}
+            <div className="bg-muted/50 rounded-lg p-3 border border-gold/20">
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <AlertCircle className="w-3 h-3 text-yellow-500" />
+                Contratação disponível em breve
+              </p>
+            </div>
+            <Button disabled className="w-full opacity-60">Contratar — Em breve</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardShell>
   );
 }
