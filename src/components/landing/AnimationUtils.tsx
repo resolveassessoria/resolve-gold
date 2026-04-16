@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-const ease = [0.4, 0, 0.2, 1];
+const ease = [0.4, 0, 0.2, 1] as const;
 
 // Scroll reveal wrapper
 export function ScrollReveal({
