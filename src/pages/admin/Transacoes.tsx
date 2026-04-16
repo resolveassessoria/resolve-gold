@@ -1,12 +1,15 @@
 import { useAuth } from "@/hooks/useAuth";
-import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { adminNav } from "@/components/dashboard/nav/adminNav";
+import { useAdminRoles } from "@/hooks/useAdminRoles";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { adminNavItems } from "@/components/admin/adminNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { formatBRL } from "@/lib/utils/currency";
 
 export default function AdminTransacoes() {
   const { user, profile, loading, signOut } = useAuth();
+  const { roles } = useAdminRoles(user?.id);
 
   const { data: transactions } = useQuery({
     queryKey: ["admin-all-transactions"],
@@ -20,21 +23,21 @@ export default function AdminTransacoes() {
   if (loading) return null;
 
   return (
-    <DashboardShell title="Transações" userName={profile?.nome} onSignOut={signOut} navItems={adminNav}>
-      <h1 className="text-2xl font-heading font-bold mb-6">Todas as <span className="text-primary">Transações</span></h1>
+    <AdminShell userName={profile?.nome} onSignOut={signOut} navItems={adminNavItems} adminRoles={roles}>
+      <h1 className="text-2xl font-heading font-bold mb-6">Todas as <span className="text-red-400">Transações</span></h1>
 
-      <Card className="bg-card border-gold">
+      <Card className="bg-[hsl(220,18%,7%)] border-[hsl(220,15%,15%)]">
         <CardHeader><CardTitle>Histórico Global</CardTitle></CardHeader>
         <CardContent>
           {transactions && transactions.length > 0 ? (
             <div className="space-y-2">
               {transactions.map((t: any) => (
-                <div key={t.id} className="flex justify-between items-center py-3 border-b border-gold last:border-0">
+                <div key={t.id} className="flex justify-between items-center py-3 border-b border-[hsl(220,15%,12%)] last:border-0">
                   <div>
                     <p className="text-sm font-medium">{t.profiles?.nome || "—"}</p>
                     <p className="text-xs text-muted-foreground capitalize">{t.tipo} — {t.profiles?.tipo_usuario} — {new Date(t.created_at).toLocaleDateString("pt-BR")}</p>
                   </div>
-                  <p className="text-primary font-bold">R$ {Number(t.valor).toFixed(2)}</p>
+                  <p className="text-red-400 font-bold">{formatBRL(t.valor)}</p>
                 </div>
               ))}
             </div>
@@ -43,6 +46,6 @@ export default function AdminTransacoes() {
           )}
         </CardContent>
       </Card>
-    </DashboardShell>
+    </AdminShell>
   );
 }
