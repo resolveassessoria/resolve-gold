@@ -2,17 +2,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { clienteNav } from "@/components/dashboard/nav/clienteNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload } from "lucide-react";
+import { Upload, Eye, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { validateUploadFile, generateSafeFilename } from "@/lib/utils/fileValidation";
 import { logAudit } from "@/lib/utils/audit";
+import { getKycSignedUrl } from "@/lib/utils/kycStorage";
+import { useState } from "react";
 
 export default function ClienteDocumentos() {
   const { user, profile, loading, signOut } = useAuth();
   const queryClient = useQueryClient();
+  const [viewingDoc, setViewingDoc] = useState<string | null>(null);
 
   const { data: docs } = useQuery({
     queryKey: ["cliente-docs", user?.id],
@@ -28,7 +32,6 @@ export default function ClienteDocumentos() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file before upload
     const validation = validateUploadFile(file);
     if (!validation.valid) {
       toast.error(validation.error);
@@ -36,17 +39,28 @@ export default function ClienteDocumentos() {
       return;
     }
 
-    // Generate safe filename (no personal data in path)
     const path = generateSafeFilename(user.id, docType, file.name);
     
     const { error } = await supabase.storage.from("kyc-documents").upload(path, file);
-    if (error) { toast.error("Erro: " + error.message); return; }
+    if (error) { toast.error("Erro ao enviar documento. Tente novamente."); return; }
     
     await supabase.from("kyc_documents").insert({ user_id: user.id, document_type: docType, file_url: path, status: "pendente" });
     await logAudit({ action: "kyc_upload", targetTable: "kyc_documents", metadata: { document_type: docType } });
     
     toast.success("Documento enviado!");
     queryClient.invalidateQueries({ queryKey: ["cliente-docs"] });
+  };
+
+  const handleViewDocument = async (docId: string) => {
+    setViewingDoc(docId);
+    try {
+      const url = await getKycSignedUrl(docId);
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } finally {
+      setViewingDoc(null);
+    }
   };
 
   if (loading) return null;
@@ -88,7 +102,18 @@ export default function ClienteDocumentos() {
                     <p className="text-sm font-medium capitalize">{d.document_type.replace(/_/g, ' ')}</p>
                     <p className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleDateString("pt-BR")}</p>
                   </div>
-                  <Badge className={statusColor(d.status)}>{d.status}</Badge>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={viewingDoc === d.id}
+                      onClick={() => handleViewDocument(d.id)}
+                    >
+                      {viewingDoc === d.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4 mr-1" />}
+                      Ver
+                    </Button>
+                    <Badge className={statusColor(d.status)}>{d.status}</Badge>
+                  </div>
                 </div>
               ))}
             </div>
