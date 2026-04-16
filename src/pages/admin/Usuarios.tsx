@@ -1,6 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { adminNav } from "@/components/dashboard/nav/adminNav";
+import { maskCPF, maskEmail } from "@/lib/utils/masks";
+import { logAudit } from "@/lib/utils/audit";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +33,7 @@ export default function AdminUsuarios() {
   const updateStatus = useMutation({
     mutationFn: async ({ userId, status }: { userId: string; status: "pendente" | "aprovado" | "rejeitado" }) => {
       await supabase.from("profiles").update({ status }).eq("id", userId);
+      await logAudit({ action: "user_status_change", targetTable: "profiles", targetId: userId, metadata: { new_status: status } });
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-users"] }); toast.success("Atualizado!"); },
   });
@@ -38,6 +41,7 @@ export default function AdminUsuarios() {
   const updateRole = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: any }) => {
       await supabase.from("profiles").update({ tipo_usuario: role }).eq("id", userId);
+      await logAudit({ action: "role_change", targetTable: "profiles", targetId: userId, metadata: { new_role: role } });
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-users"] }); toast.success("Role atualizado!"); },
   });
@@ -79,7 +83,7 @@ export default function AdminUsuarios() {
               <div key={u.id} className="flex items-center justify-between p-3 border border-gold rounded-lg">
                 <div>
                   <p className="text-sm font-medium">{u.nome}</p>
-                  <p className="text-xs text-muted-foreground">{u.email} — {u.cpf || "Sem CPF"}</p>
+                  <p className="text-xs text-muted-foreground">{maskEmail(u.email)} — {maskCPF(u.cpf)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Select value={u.tipo_usuario} onValueChange={(val) => updateRole.mutate({ userId: u.id, role: val })}>

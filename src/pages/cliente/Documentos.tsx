@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { validateUploadFile, generateSafeFilename } from "@/lib/utils/fileValidation";
+import { logAudit } from "@/lib/utils/audit";
 
 export default function ClienteDocumentos() {
   const { user, profile, loading, signOut } = useAuth();
@@ -25,10 +27,24 @@ export default function ClienteDocumentos() {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, docType: string) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    const path = `${user.id}/${docType}_${Date.now()}.${file.name.split('.').pop()}`;
+
+    // Validate file before upload
+    const validation = validateUploadFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      e.target.value = "";
+      return;
+    }
+
+    // Generate safe filename (no personal data in path)
+    const path = generateSafeFilename(user.id, docType, file.name);
+    
     const { error } = await supabase.storage.from("kyc-documents").upload(path, file);
     if (error) { toast.error("Erro: " + error.message); return; }
+    
     await supabase.from("kyc_documents").insert({ user_id: user.id, document_type: docType, file_url: path, status: "pendente" });
+    await logAudit({ action: "kyc_upload", targetTable: "kyc_documents", metadata: { document_type: docType } });
+    
     toast.success("Documento enviado!");
     queryClient.invalidateQueries({ queryKey: ["cliente-docs"] });
   };
@@ -43,18 +59,21 @@ export default function ClienteDocumentos() {
 
       <Card className="bg-card border-gold mb-8">
         <CardHeader><CardTitle className="flex items-center gap-2"><Upload className="w-5 h-5 text-primary" /> Enviar Documentos</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {["RG", "CPF", "Comprovante de Endereço"].map((doc) => (
-            <div key={doc} className="space-y-2">
-              <label className="text-sm font-medium">{doc}</label>
-              <input
-                type="file"
-                accept="image/*,.pdf"
-                onChange={(e) => handleUpload(e, doc.toLowerCase().replace(/ /g, '_'))}
-                className="block w-full text-xs text-muted-foreground file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-primary file:text-primary-foreground file:cursor-pointer"
-              />
-            </div>
-          ))}
+        <CardContent>
+          <p className="text-xs text-muted-foreground mb-4">Formatos aceitos: PDF, JPG, PNG, WEBP. Tamanho máximo: 10MB.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {["RG", "CPF", "Comprovante de Endereço"].map((doc) => (
+              <div key={doc} className="space-y-2">
+                <label className="text-sm font-medium">{doc}</label>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={(e) => handleUpload(e, doc.toLowerCase().replace(/ /g, '_'))}
+                  className="block w-full text-xs text-muted-foreground file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-primary file:text-primary-foreground file:cursor-pointer"
+                />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
