@@ -32,7 +32,13 @@ export default function Login() {
     });
 
     if (error) {
-      toast.error(error.message);
+      if (error.message.includes("Email not confirmed")) {
+        toast.error("Confirme seu email antes de fazer login. Verifique sua caixa de entrada.");
+      } else if (error.message.includes("Invalid login credentials")) {
+        toast.error("Email ou senha incorretos.");
+      } else {
+        toast.error(error.message);
+      }
       setLoading(false);
       return;
     }
