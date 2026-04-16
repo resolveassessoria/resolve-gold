@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { buildEnvUrl } from "@/lib/environment";
 
 const schema = z.object({
   email: z.string().email("Email inválido"),
@@ -43,7 +44,6 @@ export default function Login() {
       return;
     }
 
-    // Get user profile to redirect
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data: profile } = await supabase
@@ -52,16 +52,31 @@ export default function Login() {
         .eq("id", user.id)
         .single();
 
-      const routes: Record<string, string> = {
-        cliente: "/cliente/dashboard",
-        fomentador: "/fomentador/dashboard",
-        corretor: "/corretor/dashboard",
-        franqueado: "/franqueado/dashboard",
-        admin: "/admin/dashboard",
-      };
-
       const role = profile?.tipo_usuario;
-      navigate(role ? (routes[role] || "/onboarding") : "/onboarding");
+
+      if (role === "admin") {
+        // Redirect to admin environment
+        const adminUrl = buildEnvUrl("admin", "/admin/dashboard");
+        if (adminUrl.startsWith("http")) {
+          window.location.href = adminUrl;
+        } else {
+          navigate(adminUrl);
+        }
+      } else {
+        const appRoutes: Record<string, string> = {
+          cliente: "/cliente/dashboard",
+          fomentador: "/fomentador/dashboard",
+          corretor: "/corretor/dashboard",
+          franqueado: "/franqueado/dashboard",
+        };
+        const path = role ? (appRoutes[role] || "/onboarding") : "/onboarding";
+        const appUrl = buildEnvUrl("app", path);
+        if (appUrl.startsWith("http")) {
+          window.location.href = appUrl;
+        } else {
+          navigate(appUrl);
+        }
+      }
     }
     setLoading(false);
   };
