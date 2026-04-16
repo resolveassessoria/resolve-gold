@@ -15,7 +15,7 @@ type LocationLike = Pick<Location, "hostname" | "pathname" | "protocol" | "port"
 
 const ADMIN_SUBDOMAINS = ["admin"];
 const APP_SUBDOMAINS = ["app"];
-const PREVIEW_HOST_SUFFIXES = [".vercel.app", ".netlify.app", ".pages.dev"];
+const PREVIEW_HOST_SUFFIXES = [".vercel.app", ".netlify.app", ".pages.dev", ".lovable.app"];
 
 function isKnownAppSubdomain(subdomain: string): boolean {
   return ADMIN_SUBDOMAINS.includes(subdomain) || APP_SUBDOMAINS.includes(subdomain);

@@ -43,4 +43,10 @@ describe("environment routing", () => {
       buildEnvUrl("app", "/cliente/dashboard", makeLocation({ hostname: "resolve-gold.vercel.app" })),
     ).toBe("/cliente/dashboard");
   });
+
+  it("keeps lovable preview deployments on path-based navigation", () => {
+    expect(
+      buildEnvUrl("app", "/cliente/dashboard", makeLocation({ hostname: "resolve-gold.lovable.app" })),
+    ).toBe("/cliente/dashboard");
+  });
 });
