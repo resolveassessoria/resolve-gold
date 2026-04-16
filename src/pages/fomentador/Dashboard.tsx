@@ -2,10 +2,17 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { fomentadorNav } from "@/components/dashboard/nav/fomentadorNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, TrendingUp, Calendar } from "lucide-react";
+import { DollarSign, TrendingUp, Calendar, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { KPIGrid } from "@/components/dashboard/KPIGrid";
+import { BreakdownTable } from "@/components/dashboard/BreakdownTable";
+import { WithdrawalSimulator } from "@/components/dashboard/WithdrawalSimulator";
+import { ProjectionBadge } from "@/components/dashboard/ProjectionBadge";
+import { calculateFomentadorDashboard } from "@/lib/calculations/fomentador";
+import { calculateBalance } from "@/lib/calculations/finance";
+import { formatBRL, safeNumber, sumByFilter } from "@/lib/utils/currency";
 
 export default function FomentadorDashboard() {
   const { user, profile, loading, signOut } = useAuth();
@@ -20,8 +27,12 @@ export default function FomentadorDashboard() {
     enabled: !!user,
   });
 
-  const royaltiesTotal = transactions?.filter((t: any) => t.tipo === "royalty").reduce((s: number, t: any) => s + Number(t.valor), 0) || 0;
-  const investido = transactions?.filter((t: any) => t.tipo === "investimento").reduce((s: number, t: any) => s + Number(t.valor), 0) || 0;
+  const investido = sumByFilter(transactions || [], (t) => t.tipo === "investimento");
+  const royaltiesReal = sumByFilter(transactions || [], (t) => t.tipo === "royalty");
+  const calc = calculateFomentadorDashboard(investido);
+  const balance = calculateBalance(transactions || []);
+
+  const simMonths = [3, 6, 12, 24];
 
   if (loading) return null;
 
@@ -29,31 +40,36 @@ export default function FomentadorDashboard() {
     <DashboardShell title="Painel Fomentador" userName={profile?.nome} onSignOut={signOut} navItems={fomentadorNav}>
       <h1 className="text-2xl font-heading font-bold mb-6">Painel do <span className="text-primary">Fomentador</span></h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="bg-card border-gold">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Royalties Acumulados</CardTitle>
-            <DollarSign className="w-4 h-4 text-primary" />
-          </CardHeader>
-          <CardContent><p className="text-2xl font-bold text-primary">R$ {royaltiesTotal.toFixed(2)}</p></CardContent>
-        </Card>
-        <Card className="bg-card border-gold">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Valor Investido</CardTitle>
-            <TrendingUp className="w-4 h-4 text-primary" />
-          </CardHeader>
-          <CardContent><p className="text-2xl font-bold text-primary">R$ {investido.toFixed(2)}</p></CardContent>
-        </Card>
-        <Card className="bg-card border-gold">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Previsão 12 Meses</CardTitle>
-            <Calendar className="w-4 h-4 text-primary" />
-          </CardHeader>
-          <CardContent><p className="text-2xl font-bold text-primary">R$ {(investido * 0.05 * 12).toFixed(2)}</p></CardContent>
-        </Card>
-      </div>
+      <KPIGrid columns={4} items={[
+        { title: "Valor Investido", value: calc.investedAmount, icon: DollarSign },
+        { title: "Royalties Recebidos", value: royaltiesReal, icon: TrendingUp },
+        { title: "Retorno Mensal", value: calc.monthlyRoyalty, icon: Calendar, isProjection: true, subtitle: calc.projectionLabel },
+        { title: "Retorno Anual", value: calc.annualRoyalty, icon: BarChart3, isProjection: true, subtitle: "Projeção 12 meses" },
+      ]} />
 
-      <Card className="bg-card border-gold mb-8">
+      {/* Projeção por período */}
+      <Card className="bg-card border-gold mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Projeção de Retornos ({(calc.projectedPercent * 100)}% a.m.)
+            <ProjectionBadge />
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {simMonths.map((m) => (
+              <div key={m} className="bg-muted rounded-lg p-4 text-center border border-gold/30">
+                <p className="text-sm text-muted-foreground">{m} meses</p>
+                <p className="text-xl font-bold text-primary mt-1">{formatBRL(calc.monthlyRoyalty * m)}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Investir placeholder */}
+      <Card className="bg-card border-gold mt-6">
         <CardContent className="p-6 flex items-center justify-between">
           <div>
             <p className="font-heading font-bold">Investir Mais</p>
@@ -63,26 +79,31 @@ export default function FomentadorDashboard() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card border-gold">
-        <CardHeader><CardTitle>Últimas Transações</CardTitle></CardHeader>
-        <CardContent>
-          {transactions && transactions.length > 0 ? (
-            <div className="space-y-2">
-              {transactions.slice(0, 5).map((t: any) => (
-                <div key={t.id} className="flex justify-between items-center py-2 border-b border-gold last:border-0">
-                  <div>
-                    <p className="text-sm font-medium capitalize">{t.tipo}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString("pt-BR")}</p>
+      {/* Saque + Transações */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <WithdrawalSimulator availableBalance={balance.available} />
+
+        <Card className="bg-card border-gold">
+          <CardHeader><CardTitle className="text-base">Últimas Transações</CardTitle></CardHeader>
+          <CardContent>
+            {transactions && transactions.length > 0 ? (
+              <div className="space-y-2">
+                {transactions.slice(0, 5).map((t: any) => (
+                  <div key={t.id} className="flex justify-between items-center py-2 border-b border-gold last:border-0">
+                    <div>
+                      <p className="text-sm font-medium capitalize">{t.tipo}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString("pt-BR")}</p>
+                    </div>
+                    <p className="text-primary font-bold">{formatBRL(safeNumber(t.valor))}</p>
                   </div>
-                  <p className="text-primary font-bold">R$ {Number(t.valor).toFixed(2)}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Nenhuma transação encontrada.</p>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma transação encontrada.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </DashboardShell>
   );
 }

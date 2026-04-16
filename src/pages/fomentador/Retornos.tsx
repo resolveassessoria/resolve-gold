@@ -5,6 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { KPIGrid } from "@/components/dashboard/KPIGrid";
+import { ProjectionBadge } from "@/components/dashboard/ProjectionBadge";
+import { calculateFomentadorDashboard } from "@/lib/calculations/fomentador";
+import { formatBRL, sumByFilter } from "@/lib/utils/currency";
+import { DollarSign, BarChart3 } from "lucide-react";
 
 export default function FomentadorRetornos() {
   const { user, profile, loading, signOut } = useAuth();
@@ -19,36 +24,36 @@ export default function FomentadorRetornos() {
     enabled: !!user,
   });
 
-  const investido = transactions?.filter((t: any) => t.tipo === "investimento").reduce((s: number, t: any) => s + Number(t.valor), 0) || 0;
-  const royalties = transactions?.filter((t: any) => t.tipo === "royalty").reduce((s: number, t: any) => s + Number(t.valor), 0) || 0;
+  const investido = sumByFilter(transactions || [], (t) => t.tipo === "investimento");
+  const royalties = sumByFilter(transactions || [], (t) => t.tipo === "royalty");
+  const calc = calculateFomentadorDashboard(investido);
+  const simMonths = [3, 6, 12, 24];
 
   if (loading) return null;
-
-  const simMonths = [3, 6, 12, 24];
 
   return (
     <DashboardShell title="Retornos" userName={profile?.nome} onSignOut={signOut} navItems={fomentadorNav}>
       <h1 className="text-2xl font-heading font-bold mb-6">Simulação de <span className="text-primary">Retornos</span></h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Card className="bg-card border-gold">
-          <CardHeader><CardTitle className="text-sm text-muted-foreground">Total Investido</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold text-primary">R$ {investido.toFixed(2)}</p></CardContent>
-        </Card>
-        <Card className="bg-card border-gold">
-          <CardHeader><CardTitle className="text-sm text-muted-foreground">Royalties Recebidos</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold text-primary">R$ {royalties.toFixed(2)}</p></CardContent>
-        </Card>
-      </div>
+      <KPIGrid columns={2} items={[
+        { title: "Total Investido", value: investido, icon: DollarSign },
+        { title: "Royalties Recebidos", value: royalties, icon: BarChart3 },
+      ]} />
 
-      <Card className="bg-card border-gold">
-        <CardHeader><CardTitle className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-primary" /> Projeção de Retornos (5% a.m.)</CardTitle></CardHeader>
+      <Card className="bg-card border-gold mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Projeção de Retornos ({(calc.projectedPercent * 100)}% a.m.)
+            <ProjectionBadge />
+          </CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {simMonths.map((m) => (
-              <div key={m} className="bg-muted rounded-lg p-4 text-center border border-gold">
+              <div key={m} className="bg-muted rounded-lg p-4 text-center border border-gold/30">
                 <p className="text-sm text-muted-foreground">{m} meses</p>
-                <p className="text-xl font-bold text-primary mt-1">R$ {(investido * 0.05 * m).toFixed(2)}</p>
+                <p className="text-xl font-bold text-primary mt-1">{formatBRL(calc.monthlyRoyalty * m)}</p>
               </div>
             ))}
           </div>
