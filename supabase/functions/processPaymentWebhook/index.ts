@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
-import { encode as hexEncode } from "https://deno.land/std@0.224.0/encoding/hex.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
