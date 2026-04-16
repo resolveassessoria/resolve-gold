@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { franqueadoNav } from "@/components/dashboard/nav/franqueadoNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Store, Briefcase, ShieldCheck, TrendingUp } from "lucide-react";
+import { DollarSign, Store, Briefcase, ShieldCheck, TrendingUp, CheckCircle, Clock, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +36,7 @@ export default function FranqueadoDashboard() {
     enabled: !!user,
   });
 
-  const comissaoTotal = sumByFilter(transactions || [], (t) => t.tipo === "comissao");
+  const comissaoPaga = sumByFilter(transactions || [], (t) => t.tipo === "comissao");
   const grossValue = sumByFilter(transactions || [], () => true);
   const balance = calculateBalance(transactions || []);
 
@@ -46,6 +46,8 @@ export default function FranqueadoDashboard() {
     rentedGrossValue: 0,
   });
 
+  const comissaoPrevista = calc.ownOperation.directCommission + calc.ownOperation.levels.reduce((a, b) => a + b, 0);
+
   if (loading) return null;
 
   return (
@@ -53,11 +55,53 @@ export default function FranqueadoDashboard() {
       <h1 className="text-2xl font-heading font-bold mb-6">Painel do <span className="text-primary">Franqueado</span></h1>
 
       <KPIGrid columns={4} items={[
-        { title: "Comissão 40%", value: calc.ownOperation.directCommission, icon: DollarSign, isProjection: true },
         { title: "Royalties (5%)", value: calc.royalties.royalty, icon: TrendingUp, isProjection: true },
         { title: "Serviços", value: 19, icon: Briefcase, format: "number" },
         { title: "Status", value: 0, icon: ShieldCheck, format: "text", textValue: profile?.status || "pendente" },
       ]} />
+
+      {/* Comissão: Prevista / Gerada / Paga */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <Card className="bg-card border-gold">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-primary" />
+              Comissão Prevista
+              <ProjectionBadge label="Projeção" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-primary">{formatBRL(comissaoPrevista)}</p>
+            <p className="text-xs text-muted-foreground mt-1">40% da base líquida + níveis</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-gold">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+              <Clock className="w-4 h-4 text-yellow-500" />
+              Comissão Gerada
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-primary">{formatBRL(comissaoPaga)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Registrada em transactions</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-gold">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              Comissão Paga
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-primary">{formatBRL(comissaoPaga)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Valor efetivamente creditado</p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Comissões + Royalties */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
