@@ -15,14 +15,18 @@ type LocationLike = Pick<Location, "hostname" | "pathname" | "protocol" | "port"
 
 const ADMIN_SUBDOMAINS = ["admin"];
 const APP_SUBDOMAINS = ["app"];
-const PREVIEW_HOST_SUFFIXES = [".vercel.app", ".netlify.app", ".pages.dev", ".lovable.app"];
+const PREVIEW_HOSTS = ["vercel.app", "netlify.app", "pages.dev", "lovable.app"];
 
 function isKnownAppSubdomain(subdomain: string): boolean {
   return ADMIN_SUBDOMAINS.includes(subdomain) || APP_SUBDOMAINS.includes(subdomain);
 }
 
 function isPreviewHost(hostname: string): boolean {
-  return PREVIEW_HOST_SUFFIXES.some((suffix) => hostname.endsWith(suffix));
+  const normalizedHostname = hostname.toLowerCase();
+  return PREVIEW_HOSTS.some(
+    (previewHost) =>
+      normalizedHostname === previewHost || normalizedHostname.endsWith(`.${previewHost}`),
+  );
 }
 
 function getBaseDomain(hostname: string): string | null {
