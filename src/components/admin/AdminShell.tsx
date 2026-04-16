@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { fullAdminPortalLinks } from "@/lib/access-control";
 
 export interface AdminNavItem {
   label: string;
@@ -23,7 +24,6 @@ export function AdminShell({ children, userName, onSignOut, navItems, adminRoles
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Filter nav items by sub-role
   const isFullAdmin = adminRoles.includes("admin_full");
   const visibleItems = navItems.filter((item) => {
     if (!item.requiredRoles || item.requiredRoles.length === 0) return true;
@@ -56,6 +56,22 @@ export function AdminShell({ children, userName, onSignOut, navItems, adminRoles
             </Button>
           </div>
         </div>
+        {isFullAdmin && (
+          <div className="px-4 pb-3">
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-red-400/15 bg-red-400/5 px-3 py-2">
+              <span className="text-[11px] uppercase tracking-[0.2em] text-red-300/80">Acessos rápidos</span>
+              {fullAdminPortalLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="rounded-md border border-[hsl(220,15%,15%)] bg-[hsl(220,15%,10%)] px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-red-400/30 hover:text-red-300"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="flex flex-1">

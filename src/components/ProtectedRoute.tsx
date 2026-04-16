@@ -3,68 +3,77 @@ import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { buildEnvUrl } from "@/lib/environment";
+import type { AdminPermission, UserRole } from "@/lib/access-control";
+import { canAccessAllowedRoles, getRoleRoute } from "@/lib/access-control";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: string[];
-}
-
-const roleRouteMap: Record<string, string> = {
-  cliente: "/cliente/dashboard",
-  fomentador: "/fomentador/dashboard",
-  corretor: "/corretor/dashboard",
-  franqueado: "/franqueado/dashboard",
-  admin: "/admin/dashboard",
-};
-
-export function getRoleRoute(role: string): string {
-  return roleRouteMap[role] || "/onboarding";
+  allowedRoles?: UserRole[];
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [adminPermissions, setAdminPermissions] = useState<AdminPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
+    const loadUserAccess = async (sessionUser: User) => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", sessionUser.id)
+        .single();
+
+      setProfile(data);
+
+      if (data?.tipo_usuario === "admin") {
+        const { data: roles } = await supabase
+          .from("admin_roles")
+          .select("role")
+          .eq("user_id", sessionUser.id);
+
+        setAdminPermissions((roles?.map((item) => item.role) || []) as AdminPermission[]);
+        return;
+      }
+
+      setAdminPermissions([]);
+    };
+
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.user) {
         setLoading(false);
         return;
       }
+
       setUser(session.user);
-
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
-
-      setProfile(data);
+      await loadUserAccess(session.user);
       setLoading(false);
     };
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (!session?.user) {
           setUser(null);
           setProfile(null);
+          setAdminPermissions([]);
           setLoading(false);
           return;
         }
+
         setUser(session.user);
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-        setProfile(data);
+        await loadUserAccess(session.user);
         setLoading(false);
-      }
+      },
     );
 
     return () => subscription.unsubscribe();
@@ -82,7 +91,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const userRole = profile?.tipo_usuario;
+  const userRole = profile?.tipo_usuario as UserRole | undefined;
 
   if (!profile || !userRole) {
     if (location.pathname !== "/onboarding") {
@@ -91,8 +100,9 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <>{children}</>;
   }
 
-  // Admin users should be redirected to admin panel
-  if (userRole === "admin") {
+  const canAccessCurrentRoute = canAccessAllowedRoles(userRole, allowedRoles, adminPermissions);
+
+  if (userRole === "admin" && !canAccessCurrentRoute) {
     const adminUrl = buildEnvUrl("admin", "/admin/dashboard");
     if (adminUrl.startsWith("http")) {
       window.location.href = adminUrl;
@@ -101,8 +111,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/admin/dashboard" replace />;
   }
 
-  // Check if user has required role
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
+  if (!canAccessCurrentRoute) {
     return <Navigate to={getRoleRoute(userRole)} replace />;
   }
 

@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { getRoleRoute } from "@/components/ProtectedRoute";
+import { getRoleRoute } from "@/lib/access-control";
 import { Users, DollarSign, Briefcase, Store, Loader2 } from "lucide-react";
 
 const roles = [
