@@ -5,32 +5,32 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
             <h4 className="text-xl font-heading font-bold text-primary mb-4">RESOLVE</h4>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Assessoria e Soluções Financeiras. Devolvemos seu poder de compra.
             </p>
           </div>
           <div>
             <h5 className="font-heading font-semibold mb-3 text-sm">Plataforma</h5>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#beneficios" className="hover:text-primary transition-colors">Benefícios</a></li>
-              <li><a href="#precos" className="hover:text-primary transition-colors">Preços</a></li>
-              <li><a href="#roadmap" className="hover:text-primary transition-colors">Roadmap</a></li>
+              <li><a href="#beneficios" className="hover:text-primary transition-colors duration-300 link-underline">Benefícios</a></li>
+              <li><a href="#precos" className="hover:text-primary transition-colors duration-300 link-underline">Preços</a></li>
+              <li><a href="#roadmap" className="hover:text-primary transition-colors duration-300 link-underline">Roadmap</a></li>
             </ul>
           </div>
           <div>
             <h5 className="font-heading font-semibold mb-3 text-sm">Perfis</h5>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#beneficios" className="hover:text-primary transition-colors">Cliente</a></li>
-              <li><a href="#beneficios" className="hover:text-primary transition-colors">Corretor</a></li>
-              <li><a href="#franquias" className="hover:text-primary transition-colors">Franqueado</a></li>
+              <li><a href="#beneficios" className="hover:text-primary transition-colors duration-300 link-underline">Cliente</a></li>
+              <li><a href="#beneficios" className="hover:text-primary transition-colors duration-300 link-underline">Corretor</a></li>
+              <li><a href="#franquias" className="hover:text-primary transition-colors duration-300 link-underline">Franqueado</a></li>
             </ul>
           </div>
           <div>
             <h5 className="font-heading font-semibold mb-3 text-sm">Legal</h5>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Termos de Uso</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Privacidade</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Contato</a></li>
+              <li><a href="#" className="hover:text-primary transition-colors duration-300 link-underline">Termos de Uso</a></li>
+              <li><a href="#" className="hover:text-primary transition-colors duration-300 link-underline">Privacidade</a></li>
+              <li><a href="#" className="hover:text-primary transition-colors duration-300 link-underline">Contato</a></li>
             </ul>
           </div>
         </div>

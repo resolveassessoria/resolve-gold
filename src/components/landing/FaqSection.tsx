@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { ScrollReveal } from "./AnimationUtils";
 import {
   Accordion,
   AccordionContent,
@@ -19,31 +19,27 @@ export function FaqSection() {
   return (
     <section className="py-24">
       <div className="container mx-auto px-4 max-w-3xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <ScrollReveal className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4">
             PERGUNTAS <span className="text-gold-gradient">FREQUENTES</span>
           </h2>
-        </motion.div>
+        </ScrollReveal>
 
         <Accordion type="single" collapsible className="space-y-3">
           {faqs.map((faq, i) => (
-            <AccordionItem
-              key={i}
-              value={`faq-${i}`}
-              className="bg-card border border-gold rounded-lg px-6 data-[state=open]:glow-gold transition-all"
-            >
-              <AccordionTrigger className="text-left font-heading font-semibold text-sm hover:text-primary py-5">
-                {faq.q}
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-sm pb-5">
-                {faq.a}
-              </AccordionContent>
-            </AccordionItem>
+            <ScrollReveal key={i} delay={i * 0.05}>
+              <AccordionItem
+                value={`faq-${i}`}
+                className="bg-card border border-gold rounded-lg px-6 data-[state=open]:glow-gold transition-all duration-300"
+              >
+                <AccordionTrigger className="text-left font-heading font-semibold text-sm hover:text-primary py-5 transition-colors duration-300 [&[data-state=open]>svg]:rotate-180">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-sm pb-5 leading-relaxed">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            </ScrollReveal>
           ))}
         </Accordion>
       </div>
