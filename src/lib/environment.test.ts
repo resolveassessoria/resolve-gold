@@ -38,6 +38,12 @@ describe("environment routing", () => {
     ).toBe("https://admin.resolvegold.com.br/dashboard");
   });
 
+  it("returns to the public root domain from admin subdomains", () => {
+    expect(
+      buildEnvUrl("public", "/", makeLocation({ hostname: "admin.resolvegold.com.br" })),
+    ).toBe("https://resolvegold.com.br/");
+  });
+
   it("keeps preview deployments on path-based navigation", () => {
     expect(
       buildEnvUrl("app", "/cliente/dashboard", makeLocation({ hostname: "resolve-gold.vercel.app" })),
@@ -48,5 +54,11 @@ describe("environment routing", () => {
     expect(
       buildEnvUrl("app", "/cliente/dashboard", makeLocation({ hostname: "resolve-gold.lovable.app" })),
     ).toBe("/cliente/dashboard");
+  });
+
+  it("keeps lovable admin preview deployments on path-based navigation", () => {
+    expect(
+      buildEnvUrl("admin", "/admin/dashboard", makeLocation({ hostname: "resolve-gold.lovable.app" })),
+    ).toBe("/admin/dashboard");
   });
 });
