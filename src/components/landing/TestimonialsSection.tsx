@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { ScrollReveal, StaggerContainer, StaggerItem } from "./AnimationUtils";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -23,39 +24,37 @@ export function TestimonialsSection() {
   return (
     <section className="py-24">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <ScrollReveal className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4">
             O QUE DIZEM <span className="text-gold-gradient">NOSSOS PARCEIROS</span>
           </h2>
-        </motion.div>
+        </ScrollReveal>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
-              className="bg-card border border-gold rounded-lg p-6 hover:glow-gold transition-all"
-            >
-              <Quote className="w-6 h-6 text-primary/30 mb-3" />
-              <p className="text-sm text-muted-foreground mb-4 italic">"{t.text}"</p>
-              <div className="flex items-center gap-1 mb-2">
-                {[...Array(5)].map((_, j) => (
-                  <Star key={j} className="w-3 h-3 fill-primary text-primary" />
-                ))}
+        <StaggerContainer className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto" staggerDelay={0.15}>
+          {testimonials.map((t) => (
+            <StaggerItem key={t.name}>
+              <div className="bg-card border border-gold rounded-lg p-6 h-full transition-all duration-400 hover:glow-gold hover:-translate-y-1">
+                <Quote className="w-6 h-6 text-primary/20 mb-3" />
+                <p className="text-sm text-muted-foreground mb-4 italic leading-relaxed">"{t.text}"</p>
+                <div className="flex items-center gap-1 mb-2">
+                  {[...Array(5)].map((_, j) => (
+                    <motion.div
+                      key={j}
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 + j * 0.1 }}
+                    >
+                      <Star className="w-3 h-3 fill-primary text-primary" />
+                    </motion.div>
+                  ))}
+                </div>
+                <p className="font-heading font-bold text-sm">{t.name}</p>
+                <p className="text-xs text-primary">{t.role}</p>
               </div>
-              <p className="font-heading font-bold text-sm">{t.name}</p>
-              <p className="text-xs text-primary">{t.role}</p>
-            </motion.div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );

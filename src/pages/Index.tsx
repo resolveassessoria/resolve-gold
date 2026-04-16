@@ -12,25 +12,34 @@ import { NewsletterSection } from "@/components/landing/NewsletterSection";
 import { FranchiseSection } from "@/components/landing/FranchiseSection";
 import { Footer } from "@/components/landing/Footer";
 import { WhatsAppButton } from "@/components/landing/WhatsAppButton";
+import { PageEntrance, GoldParticles } from "@/components/landing/AnimationUtils";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <HeroSection />
-      <HowItWorksSection />
-      <PricingSection />
-      <RewardsSection />
-      <FranchiseSection />
-      <RoadmapSection />
-      <MarketplaceSection />
-      <TestimonialsSection />
-      <FaqSection />
-      <PreRegistrationSection />
-      <NewsletterSection />
-      <Footer />
-      <WhatsAppButton />
-    </div>
+    <PageEntrance>
+      <div className="min-h-screen bg-background relative">
+        {/* Ambient background effects */}
+        <div className="fixed inset-0 bg-ambient-glow pointer-events-none z-0" />
+        <GoldParticles />
+
+        <div className="relative z-10">
+          <Navbar />
+          <HeroSection />
+          <HowItWorksSection />
+          <PricingSection />
+          <RewardsSection />
+          <FranchiseSection />
+          <RoadmapSection />
+          <MarketplaceSection />
+          <TestimonialsSection />
+          <FaqSection />
+          <PreRegistrationSection />
+          <NewsletterSection />
+          <Footer />
+        </div>
+        <WhatsAppButton />
+      </div>
+    </PageEntrance>
   );
 };
 
