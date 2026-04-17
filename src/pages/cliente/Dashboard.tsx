@@ -3,9 +3,9 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { clienteNav } from "@/components/dashboard/nav/clienteNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  CreditCard, ShieldCheck, DollarSign, TrendingUp, Calculator,
-  Gift, Store, Landmark, Wallet, Link2, FileText, CheckCircle,
-  Clock, Loader2, PlayCircle, BadgeCheck, AlertCircle, ShoppingBag, X,
+  ShieldCheck, DollarSign, Calculator,
+  Gift, Store, Link2, FileText, CheckCircle,
+  Clock, Loader2, PlayCircle, BadgeCheck, AlertCircle, ShoppingBag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -13,14 +13,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { ProjectionBadge } from "@/components/dashboard/ProjectionBadge";
-import { WithdrawalSimulator } from "@/components/dashboard/WithdrawalSimulator";
 import { calculateClientDashboard } from "@/lib/calculations/client";
-import { calculateBalance } from "@/lib/calculations/finance";
-import { formatBRL, safeNumber, sumByFilter } from "@/lib/utils/currency";
+import { formatBRL, safeNumber } from "@/lib/utils/currency";
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
@@ -39,7 +36,6 @@ const SERVICE_STATUSES = [
 ];
 
 const MARKETPLACE_ITEMS = [
-  { nome: "Maquininha de cartão", desc: "Facilite seus recebimentos", icon: CreditCard, details: "Aceite pagamentos com cartão de débito e crédito. Taxas competitivas e recebimento rápido." },
   { nome: "Chip de celular", desc: "Conectividade com vantagens", icon: ShoppingBag, details: "Planos de dados e voz com vantagens exclusivas para clientes RESOLVE." },
   { nome: "Streaming", desc: "Acesso a entretenimento", icon: PlayCircle, details: "Acesso a plataformas de streaming com descontos especiais do ecossistema." },
   { nome: "Rastreador veicular", desc: "Segurança para seu veículo", icon: ShieldCheck, details: "Rastreamento 24h com monitoramento em tempo real e alertas de segurança." },
@@ -92,8 +88,6 @@ export default function ClienteDashboard() {
 
   const debtValue = safeNumber(debtInput);
   const calc = calculateClientDashboard(debtValue);
-  const balance = calculateBalance(transactions || []);
-  const cashbackReal = sumByFilter(transactions || [], (t: any) => t.tipo === "cashback");
   const referralLink = `${window.location.origin}/register?ref=${user?.id}`;
 
   const kycCount = kycDocs?.length || 0;
@@ -131,12 +125,11 @@ export default function ClienteDashboard() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
             {[
-              { icon: Landmark, label: "Conta bancária" },
-              { icon: CreditCard, label: "Cartão de crédito" },
-              { icon: Wallet, label: "Cartão pré-pago" },
-              { icon: TrendingUp, label: "Crédito bancário até 10%" },
+              { icon: ShieldCheck, label: "Acompanhamento do processo" },
+              { icon: FileText, label: "Análise personalizada" },
+              { icon: CheckCircle, label: "Suporte ao longo da jornada" },
               { icon: Gift, label: "Cashback por 6 meses" },
             ].map((b) => (
               <div key={b.label} className="bg-card/60 backdrop-blur rounded-lg p-3 border border-gold/30 text-center">
@@ -182,7 +175,7 @@ export default function ClienteDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         <Card className="bg-card border-gold">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
@@ -194,23 +187,6 @@ export default function ClienteDashboard() {
             <p className="text-2xl font-bold text-primary">{formatBRL(calc.servicePrice)}</p>
             <p className="text-[10px] text-muted-foreground mt-1">
               {calc.appliedPercent ? `${(calc.appliedPercent * 100)}% da dívida` : "Valor fixo mínimo"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-gold">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-primary" />
-              Crédito disponível
-              <ProjectionBadge label="Estimativa" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-primary">{formatBRL(calc.creditForecast)}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Até 10% do valor pago</p>
-            <p className="text-[10px] text-yellow-500 mt-0.5 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" /> Sujeito à análise
             </p>
           </CardContent>
         </Card>

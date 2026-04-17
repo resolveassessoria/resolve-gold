@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, LayoutDashboard, FileText, Users, ShoppingBag, Settings } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -20,7 +21,9 @@ export function DashboardLayout({ children, title, userName, onSignOut, navItems
       <header className="border-b border-gold bg-card/50 backdrop-blur-xl sticky top-0 z-40">
         <div className="container mx-auto flex items-center justify-between py-3 px-4">
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-xl font-heading font-bold text-primary">RESOLVE</Link>
+            <Link to="/" className="shrink-0">
+              <BrandLogo imageClassName="h-10" />
+            </Link>
             <span className="text-xs text-muted-foreground hidden sm:inline">| {title}</span>
           </div>
           <div className="flex items-center gap-3">
