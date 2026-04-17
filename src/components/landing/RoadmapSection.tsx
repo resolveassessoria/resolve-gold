@@ -11,9 +11,13 @@ export function RoadmapSection() {
     <section id="roadmap" className="py-24">
       <div className="container mx-auto px-4">
         <ScrollReveal className="text-center mb-16">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary/80 mb-4">Projeções e expansão comercial</p>
           <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4">
-            <span className="text-gold-gradient">ROAD MAP</span>
+            <span className="text-gold-gradient">EXPANSÃO E METAS</span>
           </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto leading-7">
+            Essa seção funciona melhor quando é lida como projeção comercial da operação, e não como promessa automática de retorno.
+          </p>
         </ScrollReveal>
 
         <div className="relative max-w-4xl mx-auto">
@@ -33,6 +37,12 @@ export function RoadmapSection() {
               </StaggerItem>
             ))}
           </StaggerContainer>
+
+          <ScrollReveal className="mt-8">
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 text-center text-sm leading-7 text-muted-foreground">
+              Projeções dependem de execução comercial, expansão da rede e volume operacional. Vale a pena deixar isso escrito para gerar mais confiança no investidor.
+            </div>
+          </ScrollReveal>
         </div>
       </div>
     </section>

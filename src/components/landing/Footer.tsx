@@ -1,36 +1,41 @@
+import { BrandLogo } from "@/components/BrandLogo";
+
 export function Footer() {
   return (
     <footer className="border-t border-gold py-12">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h4 className="text-xl font-heading font-bold text-primary mb-4">RESOLVE</h4>
+            <div className="mb-4">
+              <BrandLogo imageClassName="h-16" />
+            </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Assessoria e Soluções Financeiras. Devolvemos seu poder de compra.
+              Assessoria e Soluções Financeiras com jornada mais clara para cliente, investidor, corretor e franqueado.
             </p>
           </div>
           <div>
             <h5 className="font-heading font-semibold mb-3 text-sm">Plataforma</h5>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#beneficios" className="hover:text-primary transition-colors duration-300 link-underline">Benefícios</a></li>
-              <li><a href="#precos" className="hover:text-primary transition-colors duration-300 link-underline">Preços</a></li>
-              <li><a href="#roadmap" className="hover:text-primary transition-colors duration-300 link-underline">Roadmap</a></li>
+              <li><a href="#beneficios" className="hover:text-primary transition-colors duration-300 link-underline">Perfis</a></li>
+              <li><a href="#cliente" className="hover:text-primary transition-colors duration-300 link-underline">Cliente</a></li>
+              <li><a href="#investidor" className="hover:text-primary transition-colors duration-300 link-underline">Investidor</a></li>
             </ul>
           </div>
           <div>
             <h5 className="font-heading font-semibold mb-3 text-sm">Perfis</h5>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><a href="#beneficios" className="hover:text-primary transition-colors duration-300 link-underline">Cliente</a></li>
+              <li><a href="#investidor" className="hover:text-primary transition-colors duration-300 link-underline">Fomentador</a></li>
               <li><a href="#beneficios" className="hover:text-primary transition-colors duration-300 link-underline">Corretor</a></li>
               <li><a href="#franquias" className="hover:text-primary transition-colors duration-300 link-underline">Franqueado</a></li>
             </ul>
           </div>
           <div>
-            <h5 className="font-heading font-semibold mb-3 text-sm">Legal</h5>
+            <h5 className="font-heading font-semibold mb-3 text-sm">Navegação</h5>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors duration-300 link-underline">Termos de Uso</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors duration-300 link-underline">Privacidade</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors duration-300 link-underline">Contato</a></li>
+              <li><a href="#roadmap" className="hover:text-primary transition-colors duration-300 link-underline">Expansão</a></li>
+              <li><a href="#faq" className="hover:text-primary transition-colors duration-300 link-underline">FAQ</a></li>
+              <li><a href="#pre-cadastro" className="hover:text-primary transition-colors duration-300 link-underline">Pré-cadastro</a></li>
             </ul>
           </div>
         </div>
