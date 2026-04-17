@@ -1,57 +1,41 @@
 import { ScrollReveal } from "./AnimationUtils";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const faqs = [
-  {
-    q: "A Resolve é uma assessoria, uma plataforma ou uma oportunidade de investimento?",
-    a: "A home precisa mostrar que a Resolve combina assessoria financeira para cliente, estrutura comercial para parceiros e tese de expansão para fomentadores e franqueados. Cada perfil entra por uma regra diferente.",
-  },
-  {
-    q: "Quanto custa para o cliente entrar?",
-    a: "A comunicação atual trabalha com R$ 700 para dívidas de até R$ 7.000 e 10% do valor para faixas acima disso. Isso deve aparecer de forma objetiva logo no topo da jornada do cliente.",
-  },
-  {
-    q: "O cashback é automático e garantido?",
-    a: "Não. A comunicação da página precisa deixar claro que cashback e demais benefícios dependem de regras do serviço, análise, elegibilidade e cumprimento das condições da jornada.",
-  },
-  {
-    q: "Como o fomentador ganha?",
-    a: "O fomentador entra na tese de expansão da operação. A home deve explicar o racional do modelo, o ciclo comercial e que royalties de até 5% ao mês são apresentados como projeção, não como promessa fixa.",
-  },
-  {
-    q: "Por que o corretor e o franqueado entram nesse ecossistema?",
-    a: "Porque a proposta não é só cadastro: é estrutura comercial. O corretor entra para vender, indicar e escalar comissão; o franqueado entra para operar uma frente comercial com portfólio de serviços.",
-  },
-  {
-    q: "O que está faltando hoje na home para converter melhor?",
-    a: "Mais clareza de regra, menos promessa solta, mais prova de processo, mais observação sobre análise e mais explicação direta para cliente e investidor logo nas primeiras dobras da página.",
-  },
+  { q: "Como funciona o cashback?", a: "Ao limpar seu nome através da RESOLVE, você recebe cashback de até 2% ao mês sobre o valor pago, durante 6 meses, creditado em limite do cartão de crédito." },
+  { q: "Quanto custa para limpar o nome?", a: "Para dívidas até R$7.000, o valor é fixo de R$700. Para dívidas acima de R$7.001, o valor é 10% do total da dívida." },
+  { q: "O que é um fomentador?", a: "O fomentador é um investidor que participa da expansão das franquias RESOLVE, recebendo royalties de até 5% ao mês por 12 meses sobre o valor investido." },
+  { q: "Como funciona a comissão do corretor?", a: "O corretor recebe 30% sobre vendas de clientes e 15% sobre fomentadores, além de comissões em 7 níveis de indicação e participação nos bônus de expansão." },
+  { q: "Quais os benefícios da franquia?", a: "O franqueado tem acesso a 19 serviços financeiros, comissão de 40% sobre serviços e pode ter franquias arrendadas com divisão de 30% operador e 10% fomentador." },
+  { q: "Os pontos de expansão expiram?", a: "Os pontos de expansão acumulam mediante aquisição mensal de conteúdo. Se ficar 3 meses sem compra, os pontos zeram. Compras no marketplace mantêm os pontos." },
 ];
 
 export function FaqSection() {
   return (
-    <section id="faq" className="py-24">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <section className="py-24">
+      <div className="container mx-auto px-4 max-w-3xl">
         <ScrollReveal className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4">
-            PERGUNTAS <span className="text-gold-gradient">QUE A HOME PRECISA RESPONDER</span>
+            PERGUNTAS <span className="text-gold-gradient">FREQUENTES</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-7">
-            Uma landing mais forte antecipa dúvida comercial e reduz objeção antes mesmo do clique no WhatsApp ou no cadastro.
-          </p>
         </ScrollReveal>
 
         <Accordion type="single" collapsible className="space-y-3">
           {faqs.map((faq, i) => (
-            <ScrollReveal key={i} delay={i * 0.04}>
+            <ScrollReveal key={i} delay={i * 0.05}>
               <AccordionItem
                 value={`faq-${i}`}
-                className="rounded-[1.5rem] border border-gold bg-card px-6 data-[state=open]:glow-gold transition-all duration-300"
+                className="bg-card border border-gold rounded-lg px-6 data-[state=open]:glow-gold transition-all duration-300"
               >
                 <AccordionTrigger className="text-left font-heading font-semibold text-sm hover:text-primary py-5 transition-colors duration-300 [&[data-state=open]>svg]:rotate-180">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm pb-5 leading-7">
+                <AccordionContent className="text-muted-foreground text-sm pb-5 leading-relaxed">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>

@@ -7,11 +7,10 @@ import { BrandLogo } from "@/components/BrandLogo";
 
 const navItems = [
   { label: "Início", href: "#inicio" },
-  { label: "Perfis", href: "#beneficios" },
-  { label: "Cliente", href: "#cliente" },
-  { label: "Investidor", href: "#investidor" },
+  { label: "Benefícios", href: "#beneficios" },
+  { label: "Preços", href: "#precos" },
+  { label: "Roadmap", href: "#roadmap" },
   { label: "Franquias", href: "#franquias" },
-  { label: "FAQ", href: "#faq" },
 ];
 
 export function Navbar() {

@@ -1,15 +1,14 @@
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { TrustSection } from "@/components/landing/TrustSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { PricingSection } from "@/components/landing/PricingSection";
-import { InvestorSection } from "@/components/landing/InvestorSection";
 import { RewardsSection } from "@/components/landing/RewardsSection";
 import { RoadmapSection } from "@/components/landing/RoadmapSection";
 import { MarketplaceSection } from "@/components/landing/MarketplaceSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { FaqSection } from "@/components/landing/FaqSection";
 import { PreRegistrationSection } from "@/components/landing/PreRegistrationSection";
+import { NewsletterSection } from "@/components/landing/NewsletterSection";
 import { FranchiseSection } from "@/components/landing/FranchiseSection";
 import { Footer } from "@/components/landing/Footer";
 import { WhatsAppButton } from "@/components/landing/WhatsAppButton";
@@ -26,10 +25,8 @@ const Index = () => {
         <div className="relative z-10">
           <Navbar />
           <HeroSection />
-          <TrustSection />
           <HowItWorksSection />
           <PricingSection />
-          <InvestorSection />
           <RewardsSection />
           <FranchiseSection />
           <RoadmapSection />
@@ -37,6 +34,7 @@ const Index = () => {
           <TestimonialsSection />
           <FaqSection />
           <PreRegistrationSection />
+          <NewsletterSection />
           <Footer />
         </div>
         <WhatsAppButton />

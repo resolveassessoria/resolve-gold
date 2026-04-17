@@ -46,9 +46,7 @@ export function PreRegistrationSection() {
           <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4">
             <span className="text-gold-gradient">PRÉ-CADASTRO</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-7">
-            Escolha seu perfil, deixe seus dados e avance para uma conversa comercial mais clara com o time da RESOLVE.
-          </p>
+          <p className="text-muted-foreground">Garanta seu lugar na plataforma RESOLVE</p>
         </ScrollReveal>
 
         <ScrollReveal>
